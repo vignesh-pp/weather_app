@@ -55,7 +55,7 @@ const App = () => {
           });
       });
     }
-  }, [city, unit]);
+  }, [city, unit, apiUrl]);
 
   // Handle the city change
   const handleCityChange = (e) => {
