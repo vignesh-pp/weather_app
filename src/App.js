@@ -207,7 +207,12 @@ const App = () => {
       {currentLocationWeather && (
         <div
           className="current-location"
-          style={{ position: "absolute", top: "20px", right: "20px" }}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            color: weatherData?.weather[0]?.main === "Clouds" ? "#000" : "#fff",
+          }}
         >
           <h3>Current Location</h3>
           <p>{currentLocationWeather.name}</p>
