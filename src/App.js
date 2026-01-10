@@ -24,38 +24,49 @@ const App = () => {
 
   // Fetch weather data when the component mounts or when the city or unit changes
   useEffect(() => {
-    // Fetch the weather for the selected city
-    if (city.trim() !== "") {
+    const controller = new AbortController();
+
+    // debounce timer
+    const timer = setTimeout(() => {
+      if (city.trim() === "") return;
+
       axios
-        .get(apiUrl)
+        .get(apiUrl, { signal: controller.signal })
         .then((response) => {
           setWeatherData(response.data);
-          setError(null); // Reset error if data is fetched successfully
+          setError(null);
         })
         .catch((error) => {
-          setWeatherData(null);
-          setError("Failed to fetch weather data");
+          if (error.name !== "CanceledError") {
+            setWeatherData(null);
+            setError("Failed to fetch weather data");
+          }
         });
-    }
+    }, 500); // 👈 debounce delay
 
-    // Fetch the weather for the current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        const locationUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${unit}&appid=${apiKey}`;
-
-        axios
-          .get(locationUrl)
-          .then((response) => {
-            setCurrentLocationWeather(response.data); // Set current location weather
-          })
-          .catch((error) => {
-            setCurrentLocationWeather(null);
-          });
-      });
-    }
+    return () => {
+      clearTimeout(timer); // cancel debounce
+      controller.abort(); // cancel API
+    };
   }, [city, unit, apiUrl]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      const locationUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unit}&appid=${apiKey}`;
+
+      axios
+        .get(locationUrl, { signal: controller.signal })
+        .then((res) => setCurrentLocationWeather(res.data))
+        .catch(() => setCurrentLocationWeather(null));
+    });
+
+    return () => controller.abort();
+  }, [unit]);
 
   // Handle the city change
   const handleCityChange = (e) => {
