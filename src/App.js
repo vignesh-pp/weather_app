@@ -19,8 +19,8 @@ const App = () => {
   const [unit, setUnit] = useState("metric"); // metric for Celsius, imperial for Fahrenheit
   const [currentLocationWeather, setCurrentLocationWeather] = useState(null); // To store current location weather
 
-  const apiKey = "d087e1ddfc3d986746779c7ff00796f1"; // Replace with your OpenWeatherMap API key
-  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${unit}&appid=${apiKey}`;
+  // const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${unit}&appid=${apiKey}`;
+  const apiUrl = `https://weather-app-backend-9tzo.onrender.com/api/weather?city=${city}&unit=${unit}`;
 
   // Fetch weather data when the component mounts or when the city or unit changes
   useEffect(() => {
@@ -57,7 +57,8 @@ const App = () => {
 
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
-      const locationUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unit}&appid=${apiKey}`;
+      const locationUrl = `https://weather-app-backend-9tzo.onrender.com/api/weather/location?lat=${latitude}&lon=${longitude}&unit=${unit}`;
+      // const locationUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unit}&appid=${apiKey}`;
 
       axios
         .get(locationUrl, { signal: controller.signal })
